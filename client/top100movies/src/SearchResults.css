@@ -1,0 +1,15 @@
+/* .hori-scr {
+  overflow-x: auto !important;
+  display: flex !important;
+  width: 100%;
+} */
+
+.poster {
+  transition: 250ms all;
+}
+.poster:hover {
+  transform: scale(1.2);
+  cursor: pointer;
+  display: block;
+  box-shadow: 0px 40px 40px #292929;
+}
