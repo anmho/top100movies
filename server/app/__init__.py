@@ -1,23 +1,31 @@
+from flask_migrate import Migrate
 from flask import Flask
-from .api import api
+from flask_sqlalchemy import SQLAlchemy
 from .auth import auth
-from .models import db
+from os import path
+from .config import DB_NAME
+from .api import api
+from .models import db 
 
+from app.models import User, Movie
 
 def create_app():
     app = Flask(__name__)
     # Configure settings
     app.config.from_pyfile("config.py")
 
-    # db.init_app(app, url_prefix="/")
-
     # Register Blueprints
     app.register_blueprint(api, url_prefix="/api")
     app.register_blueprint(auth)
 
-    # Bind packages to Flask app\
+    # Bind packages to Flask app
+    db.init_app(app)
+    # register extensions
+    migrate = Migrate(app, db)
+    create_database(app)
     return app
 
 
-def create_database():
-    pass
+def create_database(app):
+    if not path.exists(DB_NAME):
+        db.create_all(app=app)
