@@ -11,13 +11,17 @@ def get_user(username):
 
 @api.route("/users", methods=["GET"])
 def get_users():
-    users = User.query.all()
-    users = [user.to_dict() for user in users]
-    response = {
-        "users": users
-    }
+    page = request.args.get("page", 1, type=int)
+    per_page = request.args.get("per_page", 20, type=int)
 
-    return response
+    data = User.to_collection_dict(
+        User.query,
+        page=page,
+        per_page=min(per_page, 100),
+        endpoint="api.get_users"
+    )
+
+    return data
 
 
 @api.route("/users", methods=["POST"])
@@ -56,4 +60,8 @@ def update_user(username):
 
 @api.route("/users/<username>", methods=["DELETE"])
 def delete_user(username):
+    pass
+
+@api.route("/users/<username>/ratings", methods=["GET"])
+def get_ratings(username):
     pass
