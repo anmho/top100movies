@@ -1,5 +1,9 @@
-from flask_sqlalchemy import SQLAlchemy
+from flask_sqlalchemy import SQLAlchemy, BaseQuery
 from werkzeug.security import check_password_hash, generate_password_hash
+import base64
+from flask import url_for
+from datetime import datetime, timedelta
+import os
 
 
 db = SQLAlchemy()
@@ -13,14 +17,39 @@ user_movie = db.Table("user_movie",
                       )
 
 
-class User(db.Model):
+class PaginatedAPIMixin():
+    @staticmethod
+    def to_collection_dict(query: BaseQuery, page: int, per_page: int, endpoint: str, **kwargs):
+        resources = query.paginate(
+            page=page, per_page=per_page, error_out=False)
+
+        data = {
+            "items": [item.to_dict() for item in resources.items],
+            "_meta": {
+                "page": page,
+                "per_page": per_page,
+                "total_pages": resources.pages,
+                "total_items": resources.total,
+            },
+            "_links": {
+                "self": url_for(endpoint, page=page, per_page=per_page, **kwargs),
+                "next": url_for(endpoint, page=page+1, per_page=per_page, **kwargs) if resources.has_next else None,
+                "prev": url_for(endpoint, page=page-1, per_page=per_page, **kwargs) if resources.has_prev else None,
+            }
+        }
+        return data
+
+
+class User(db.Model, PaginatedAPIMixin):
     id = db.Column(db.Integer, primary_key=True)
     username = db.Column(db.String(20), unique=True)
     email = db.Column(db.String(100), unique=True)
     movies = db.relationship("Movie", secondary="user_movie", backref="users")
     pw_hash = db.Column(db.String(64))
+    token = db.Column(db.String(32), index=True, unique=True)
+    token_expiration = db.Column(db.DateTime())
 
-    def set_password(self, password):
+    def set_password(self, password: str):
         self.password = generate_password_hash(
             password, method="sha256", salt_length=16)
 
@@ -28,11 +57,28 @@ class User(db.Model):
         return check_password_hash(pwhash=self.pw_hash, password=password)
 
     # tokens
-    def get_token(self):
-        pass
+    def get_token(self, expires_in=3600):
+        now = datetime.utcnow()
+        # check if token exists and is unexpired
+        if self.token and self.token_expiration > now + timedelta(seconds=60):
+            return self.token
 
-    def check_token(self):
-        pass
+        # generate new token
+        self.token = base64.b64encode(os.urandom(24)).decode("utf-8")
+        self.token_expiration = now + timedelta(seconds=expires_in)
+        db.session.add(self.token)
+        return self.token
+
+    @staticmethod
+    def check_token(token):
+        # check if a user has token
+        user = User.query.filter_by(token=token)
+
+        # check if token is expired
+        if user is None or user.token_expiration < datetime.utcnow():
+            return None # no user with this token
+
+        return user
 
     def to_dict(self):
         data = {
@@ -42,13 +88,13 @@ class User(db.Model):
         }
         return data
 
-    def from_dict(self, data, new_user=False):
+    def from_dict(self, data: dict, new_user=False):
         # set all the fields to the corresponding json
         fields = ["username", "email"]
         for field in fields:
             if field in data:
                 setattr(self, field, data[field])
-        
+
         # set password
         if new_user and "password" in data:
             self.set_password(data["password"])
@@ -61,6 +107,7 @@ class Movie(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     title = db.Column(db.String(50))
     # to_dict
+
     def to_dict(self):
         data = {
             "id": self.id,
