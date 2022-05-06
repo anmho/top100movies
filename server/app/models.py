@@ -1,20 +1,22 @@
+from shutil import unregister_unpack_format
 from flask_sqlalchemy import SQLAlchemy, BaseQuery
 from werkzeug.security import check_password_hash, generate_password_hash
 import base64
 from flask import url_for
 from datetime import datetime, timedelta
 import os
-
+# from __future__ import annotations
 
 db = SQLAlchemy()
 
-# table but do not want it to map to any objects, simply store relationships between movies and users
+# No unique objects, store relationships between movies and users
 user_movie = db.Table("user_movie",
                       db.Column("user_id", db.Integer,
                                 db.ForeignKey("user.id")),
                       db.Column("movie_id", db.Integer,
                                 db.ForeignKey("movie.id"))
                       )
+# ratings-movie relationship
 
 
 class PaginatedAPIMixin():
@@ -40,6 +42,26 @@ class PaginatedAPIMixin():
         return data
 
 
+class Movie(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    title = db.Column(db.String(50))
+
+    def to_dict(self):
+        data = {
+            "id": self.id,
+            "title": self.title,
+        }
+        return data
+
+    def from_dict(self, data: dict):
+        if "id" in data and "title" in data:
+            self.id = data["id"]
+            self.title = data["title"]
+
+    def __repr__(self):
+        return f"<Movie {self.title}>"
+
+
 class User(db.Model, PaginatedAPIMixin):
     id = db.Column(db.Integer, primary_key=True)
     username = db.Column(db.String(20), unique=True)
@@ -49,15 +71,14 @@ class User(db.Model, PaginatedAPIMixin):
     token = db.Column(db.String(32), index=True, unique=True)
     token_expiration = db.Column(db.DateTime())
 
-    def set_password(self, password: str):
-        self.password = generate_password_hash(
+    def set_password(self, password: str) -> None:
+        self.pw_hash = generate_password_hash(
             password, method="sha256", salt_length=16)
 
-    def check_password(self, password):
+    def check_password(self, password: str) -> bool:
         return check_password_hash(pwhash=self.pw_hash, password=password)
 
-    # tokens
-    def get_token(self, expires_in=3600):
+    def get_token(self, expires_in=3600) -> str:
         now = datetime.utcnow()
         # check if token exists and is unexpired
         if self.token and self.token_expiration > now + timedelta(seconds=60):
@@ -66,19 +87,23 @@ class User(db.Model, PaginatedAPIMixin):
         # generate new token
         self.token = base64.b64encode(os.urandom(24)).decode("utf-8")
         self.token_expiration = now + timedelta(seconds=expires_in)
-        db.session.add(self.token)
+        db.session.add(self)
         return self.token
 
     @staticmethod
-    def check_token(token):
-        # check if a user has token
-        user = User.query.filter_by(token=token)
+    def check_token(token: str) -> 'User':
+        # check user has token
+        user = User.query.filter_by(token=token).first()
 
         # check if token is expired
         if user is None or user.token_expiration < datetime.utcnow():
-            return None # no user with this token
+            return None  # no user with this token
 
         return user
+
+    def revoke_token(self) -> None:
+        now = datetime.utcnow()
+        self.token_expiration = now - timedelta(seconds=1)
 
     def to_dict(self):
         data = {
@@ -88,12 +113,32 @@ class User(db.Model, PaginatedAPIMixin):
         }
         return data
 
-    def from_dict(self, data: dict, new_user=False):
+    def from_dict(self, data: dict, new_user=False) -> None:
         # set all the fields to the corresponding json
         fields = ["username", "email"]
         for field in fields:
             if field in data:
                 setattr(self, field, data[field])
+
+        if "movies" in data:
+            """
+            "movies: [
+                { "tmdb_id": 1, "title": Spiderman },
+                {},
+                {},
+            ]
+            """
+            new_movies = []
+            for movie_data in data["movies"]:
+                if "id" in movie_data and "title" in movie_data:
+                    tmdb_id = movie_data["id"]
+                    movie = Movie.query.filter_by(id=tmdb_id).first()
+                    if movie is None:
+                        movie = Movie()
+                        movie.from_dict(movie_data)
+
+                    new_movies.append(movie)
+            self.movies = new_movies
 
         # set password
         if new_user and "password" in data:
@@ -101,19 +146,3 @@ class User(db.Model, PaginatedAPIMixin):
 
     def __repr__(self):
         return f"<User {self.username}>"
-
-
-class Movie(db.Model):
-    id = db.Column(db.Integer, primary_key=True)
-    title = db.Column(db.String(50))
-    # to_dict
-
-    def to_dict(self):
-        data = {
-            "id": self.id,
-            "title": self.title,
-        }
-        return data
-
-    def __repr__(self):
-        return f"<Movie {self.title}>"

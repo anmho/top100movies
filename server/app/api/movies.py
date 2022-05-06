@@ -1,8 +1,11 @@
+from lib2to3.pgen2 import token
 from . import api
 from flask import jsonify, request
 from app.config import TMDB_API_KEY
 import requests
 from app.api.recommender.recommender import Recommender
+from app.api.errors import bad_request
+from app.api.auth import token_auth
 
 
 @api.route("/movies/", methods=["GET"])
@@ -25,17 +28,21 @@ def get_movie(movie_id):
     return response
 
 
-@api.route("/movies/recommend", methods=["GET"])
+@api.route("/movies/recommendations", methods=["GET"])
+@token_auth.login_required
 def get_recommendations():
-    data = request.get_json().get("liked_movies")
-    liked_movies = []
+    movies = token_auth.current_user().movies
+    ratings = [[movie.id, 5] for movie in movies]
 
-    for liked_movie in data:
-        movielens_id = Recommender.get_movie_id(liked_movie["tmdb_id"])
-        rating = liked_movie["rating"]
-        liked_movies.append((movielens_id, rating))
+    for movie_rating in ratings:
+        tmdb_id, rating = movie_rating
+        movielens_id = Recommender.get_movie_id(tmdb_id=tmdb_id)
+        if not movielens_id:
+            continue
 
-    recommendations = Recommender.get_recommendations(liked_movies)
+        movie_rating[0] = movielens_id
+
+    recommendations = Recommender.get_recommendations(ratings)
     response = {
         "recommendations": recommendations
     }
