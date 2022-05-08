@@ -1,9 +1,9 @@
 // import "./App.css";
 import SearchBar from "./SearchBar";
 import { useState } from "react";
-import SearchResults from "./SearchResults";
+import SearchResults from "./components/SearchResults";
 import MovieList from "./MovieList";
-import Button from "./Button";
+import Button from "./components/Button";
 
 function App() {
   const [query, setQuery] = useState("");
