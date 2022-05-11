@@ -6,7 +6,6 @@ function SearchBar(props) {
 
   const onSearchButtonClicked = () => {
     // Update the state of the app
-    console.log(query);
     props.updateQuery(query);
   };
 
