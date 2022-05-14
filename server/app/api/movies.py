@@ -16,7 +16,6 @@ def get_movies():
     response = requests.get(url)
     movies = jsonify(response.json())
     # can make so only some domains allowed
-    # movies.headers.add("Access-Control-Allow-Origin", "*")
 
     return movies
 
@@ -32,7 +31,7 @@ def get_movie(movie_id):
 @token_auth.login_required
 def get_recommendations():
     movies = token_auth.current_user().movies
-    ratings = [[movie.id, 5] for movie in movies]
+    ratings = [[movie.id, 5] for movie in movies]  # Default 5 rating
 
     for movie_rating in ratings:
         tmdb_id, rating = movie_rating
