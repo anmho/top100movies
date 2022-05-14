@@ -1,5 +1,4 @@
 /app/config.py
 /app/__pycache__/
 /venv/
-
 /app/api/recommender/datasets
