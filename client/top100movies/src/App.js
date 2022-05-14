@@ -1,22 +1,23 @@
 import "./App.css";
-import SearchBar from "./SearchBar";
-import { useState } from "react";
+import SearchBar from "./components/SearchBar";
+import { useContext, useEffect, useState } from "react";
 import SearchResults from "./components/SearchResults";
 import MovieList from "./components/MovieList";
-import Button from "./components/Button";
+// import Button from "./components/Button";
+import { Flex, Center, IconButton } from "@chakra-ui/react";
+import { AddIcon } from "@chakra-ui/icons";
 import auth from "./services/authService";
 import { searchMovies } from "./services/movieService";
 import LoginModal from "./components/LoginModal";
+import LogoutModal from "./components/LogoutModal";
+import UserContext from "./contexts/userContext.js";
 
 function App() {
   const [query, setQuery] = useState("");
   const [userMovies, setUserMovies] = useState([]);
   const [results, setSearchResults] = useState([]);
   const [searchActive, setSearchActive] = useState(false);
-  const [loggedIn, setLoggedIn] = useState(false);
-  const [token, setToken] = useState();
-  const [user, setUser] = useState({});
-
+  const { user, setUser, isLoggedIn, setLoggedIn } = useContext(UserContext);
   const search = async (query) => {
     console.log("updateQuery", query);
     setQuery(query);
@@ -26,8 +27,22 @@ function App() {
     setSearchResults(results);
   };
 
+  // Load the user content
+  useEffect(() => {
+    // Try to load current user
+    // if successfully loads user, token was still valid/token is present
+    const fetchUser = async () => {
+      const user = await auth.getCurrentUser();
+      if (!user) return;
+      setUser(user);
+      setLoggedIn(true);
+    };
+    fetchUser();
+  }, [setUser, setLoggedIn]);
+  console.log(isLoggedIn);
+
   const saveMovies = () => {
-    console.log(userMovies);
+    console.log(userMovies); // => UPDATE /api/users/{username}
   };
 
   const removeMovie = (movie) => {
@@ -37,48 +52,14 @@ function App() {
     setUserMovies(movies);
   };
 
-  const login = async (username, password) => {
-    let response = await auth.login(username, password);
-    if (response.ok) {
-      // Get token
-      const data = await response.json();
-      setToken(data.token);
-      localStorage.setItem("token", data.token);
-    } else {
-      throw new Error("Login Unauthorized");
-    }
-    console.log(token);
-    // Use token to get current user
-
-    response = await auth.getCurrentUser(username, token);
-    // Save the current user
-    if (response.ok) {
-      const user = await response.json();
-      setUser(user);
-    }
+  const logOut = async () => {
+    setLoggedIn(false);
+    localStorage.removeItem("token");
   };
 
   return (
     <div style={{ textAlign: "center" }}>
-      <LoginModal login={login} />
-      {/* <button onClick={test}>Get User</button> */}
-
-      {/* {!loggedIn && (
-        <form onSubmit={(e) => handleSubmit(e)}>
-          <input type="text" onChange={(e) => setUsername(e.target.value)} />
-          <input
-            type="password"
-            onChange={(e) => setPassword(e.target.value)}
-          />
-          <Button label="Log In" />
-        </form>
-      )}
-
-      {loggedIn && (
-        <button className="btn btn-primary" onClick={() => handleSignOut()}>
-          Sign Out
-        </button>
-      )} */}
+      {!isLoggedIn ? <LoginModal /> : <LogoutModal logOut={logOut} />}
 
       <h1>WatchList</h1>
       <div>
@@ -89,29 +70,17 @@ function App() {
       </div>
 
       {/* Add/Search Button */}
-      {!searchActive && (
-        <Button
-          label={<i className={"bi bi-plus"} />}
-          className={"circular"}
-          onButtonClicked={() => setSearchActive(!searchActive)}
-          margin="mt-2"
-        />
-      )}
+      <IconButton
+        aria-label="Add Movie"
+        borderRadius={"full"}
+        onClick={() => setSearchActive(!searchActive)}
+        icon={<AddIcon />}
+        colorScheme="blue"
+      />
 
       {/* Save Button */}
-      {searchActive && (
-        <Button
-          label="Save"
-          className={"circular"}
-          onButtonClicked={() => {
-            saveMovies();
-            setSearchActive(!searchActive);
-          }}
-        />
-      )}
-
       {searchActive && <SearchBar updateQuery={search} />}
-
+      {/* Search Results */}
       {searchActive && query && (
         <SearchResults
           userMovies={userMovies}

@@ -1,17 +1,27 @@
 import { useState } from "react";
+import { Button, FormControl, Container, Input } from "@chakra-ui/react";
 
-function SearchBar(props) {
+function SearchBar({ updateQuery }) {
   // State for this component
   const [query, setQuery] = useState("");
 
-  const onSearchButtonClicked = () => {
+  // Add automatic searching after 1 second delay (or on enter), setInterval
+  const onSearchButtonClicked = (e) => {
     // Update the state of the app
-    props.updateQuery(query);
+    updateQuery(query);
   };
 
   return (
     <div>
-      <div className="row">
+      <Container mb={8} mt={4}>
+        <Input
+          type="text"
+          placeholder="Search for movies"
+          onChange={(e) => setQuery(e.target.value)}
+          onKeyDown={(e) => (e.key === "Enter" ? updateQuery(query) : null)}
+        />
+      </Container>
+      {/* <div className="row">
         <div className="col-4" />
         <div className="col-4">
           <label htmlFor="search">SearchBar</label>
@@ -31,7 +41,7 @@ function SearchBar(props) {
         onClick={onSearchButtonClicked}
       >
         Search
-      </button>
+      </button> */}
     </div>
   );
 }
