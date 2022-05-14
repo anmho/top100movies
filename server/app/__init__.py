@@ -17,7 +17,10 @@ def create_app():
 
     # Register Blueprints
     app.register_blueprint(api, url_prefix="/api")
+<<<<<<< HEAD
     # app.register_blueprint(auth)
+=======
+>>>>>>> tmp
 
     # Bind packages to Flask app
     cors = CORS()

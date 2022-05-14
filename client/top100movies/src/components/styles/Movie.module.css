@@ -1,0 +1,12 @@
+.poster {
+  transition: 350ms all;
+  box-shadow: rgba(0, 0, 0, 0.24) 0px 3px 8px;
+}
+
+.poster:hover {
+  transform: scale(1.2);
+  cursor: pointer;
+  z-index: 9999;
+  box-shadow: 0px 40px 40px #292929;
+  display: absolute !important;
+}

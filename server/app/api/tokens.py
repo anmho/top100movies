@@ -1,35 +1,19 @@
-from distutils.log import error
-from app.models import User
-from flask_httpauth import HTTPBasicAuth, HTTPTokenAuth
-from .errors import error_response
-
-basic_auth = HTTPBasicAuth()
-token_auth = HTTPTokenAuth()
+from app.api import api
+from app.models import db
+from app.api.auth import basic_auth, token_auth
 
 
-@basic_auth.verify_password
-def verify_password(username, password):
-    user = User.query.filter_by(username=username).first()
-    if user.check_password(password):
-        return user
-
-    return None
-
-
-@basic_auth.error_handler
-def basic_error_handler(status):
-    return error_response(status)
+@api.route("/tokens", methods=["POST"])
+@basic_auth.login_required
+def get_token():
+    token = basic_auth.current_user().get_token()
+    db.session.commit()
+    return {"token": token}
 
 
-@token_auth.verify_token
-def verify_token(token):
-    # No Token
-    if not token:
-        return None
-    # Check if token is valid
-    return User.check_token(token)
-
-
-@token_auth.error_handler
-def token_error_handler(status):
-    return error_response(status)
+@api.route("/tokens", methods=["DELETE"])
+@token_auth.login_required
+def revoke_token():
+    token_auth.current_user().revoke_token()
+    db.session.commit()
+    return {}, 204
