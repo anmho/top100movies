@@ -18,22 +18,14 @@ def get_users():
     page = request.args.get("page", 1, type=int)
     per_page = request.args.get("per_page", 20, type=int)
 
-<<<<<<< HEAD
-    data = User.to_collection_dict(
-=======
     users = User.to_collection_dict(
->>>>>>> tmp
         User.query,
         page=page,
         per_page=min(per_page, 100),
         endpoint="api.get_users"
     )
 
-<<<<<<< HEAD
-    return data
-=======
     return users
->>>>>>> tmp
 
 
 @api.route("/users", methods=["POST"])
@@ -89,10 +81,6 @@ def delete_user(username):
     db.session.commit()
     return {}, 204
 
-
-@api.route("/users/<username>/ratings", methods=["GET"])
-def get_ratings(username):
-    pass
 
 @api.route("/users/<username>/ratings", methods=["GET"])
 def get_ratings(username):

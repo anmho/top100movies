@@ -1,18 +1,11 @@
-<<<<<<< HEAD
-=======
 from shutil import unregister_unpack_format
->>>>>>> tmp
 from flask_sqlalchemy import SQLAlchemy, BaseQuery
 from werkzeug.security import check_password_hash, generate_password_hash
 import base64
 from flask import url_for
 from datetime import datetime, timedelta
 import os
-<<<<<<< HEAD
-
-=======
 # from __future__ import annotations
->>>>>>> tmp
 
 db = SQLAlchemy()
 
@@ -49,8 +42,6 @@ class PaginatedAPIMixin():
         return data
 
 
-<<<<<<< HEAD
-=======
 class Movie(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     title = db.Column(db.String(50))
@@ -71,7 +62,6 @@ class Movie(db.Model):
         return f"<Movie {self.title}>"
 
 
->>>>>>> tmp
 class User(db.Model, PaginatedAPIMixin):
     id = db.Column(db.Integer, primary_key=True)
     username = db.Column(db.String(20), unique=True)
@@ -81,24 +71,14 @@ class User(db.Model, PaginatedAPIMixin):
     token = db.Column(db.String(32), index=True, unique=True)
     token_expiration = db.Column(db.DateTime())
 
-<<<<<<< HEAD
-    def set_password(self, password: str):
-        self.password = generate_password_hash(
-=======
     def set_password(self, password: str) -> None:
         self.pw_hash = generate_password_hash(
->>>>>>> tmp
             password, method="sha256", salt_length=16)
 
     def check_password(self, password: str) -> bool:
         return check_password_hash(pwhash=self.pw_hash, password=password)
 
-<<<<<<< HEAD
-    # tokens
-    def get_token(self, expires_in=3600):
-=======
     def get_token(self, expires_in=3600) -> str:
->>>>>>> tmp
         now = datetime.utcnow()
         # check if token exists and is unexpired
         if self.token and self.token_expiration > now + timedelta(seconds=60):
@@ -107,21 +87,6 @@ class User(db.Model, PaginatedAPIMixin):
         # generate new token
         self.token = base64.b64encode(os.urandom(24)).decode("utf-8")
         self.token_expiration = now + timedelta(seconds=expires_in)
-<<<<<<< HEAD
-        db.session.add(self.token)
-        return self.token
-
-    @staticmethod
-    def check_token(token):
-        # check if a user has token
-        user = User.query.filter_by(token=token)
-
-        # check if token is expired
-        if user is None or user.token_expiration < datetime.utcnow():
-            return None # no user with this token
-
-        return user
-=======
         db.session.add(self)
         return self.token
 
@@ -139,7 +104,6 @@ class User(db.Model, PaginatedAPIMixin):
     def revoke_token(self) -> None:
         now = datetime.utcnow()
         self.token_expiration = now - timedelta(seconds=1)
->>>>>>> tmp
 
     def to_dict(self):
         data = {
@@ -149,19 +113,13 @@ class User(db.Model, PaginatedAPIMixin):
         }
         return data
 
-<<<<<<< HEAD
-    def from_dict(self, data: dict, new_user=False):
-=======
     def from_dict(self, data: dict, new_user=False) -> None:
->>>>>>> tmp
         # set all the fields to the corresponding json
         fields = ["username", "email"]
         for field in fields:
             if field in data:
                 setattr(self, field, data[field])
 
-<<<<<<< HEAD
-=======
         if "movies" in data:
             """
             "movies: [
@@ -182,29 +140,9 @@ class User(db.Model, PaginatedAPIMixin):
                     new_movies.append(movie)
             self.movies = new_movies
 
->>>>>>> tmp
         # set password
         if new_user and "password" in data:
             self.set_password(data["password"])
 
     def __repr__(self):
         return f"<User {self.username}>"
-<<<<<<< HEAD
-
-
-class Movie(db.Model):
-    id = db.Column(db.Integer, primary_key=True)
-    title = db.Column(db.String(50))
-    # to_dict
-
-    def to_dict(self):
-        data = {
-            "id": self.id,
-            "title": self.title,
-        }
-        return data
-
-    def __repr__(self):
-        return f"<Movie {self.title}>"
-=======
->>>>>>> tmp
