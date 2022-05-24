@@ -53,5 +53,6 @@ export function logout() {
 const auth = {
   login,
   getCurrentUser,
+  logout,
 };
 export default auth;

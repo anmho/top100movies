@@ -1,4 +1,4 @@
-import { useContext, useState } from "react";
+import { useEffect, useContext, useState } from "react";
 import {
   Center,
   useDisclosure,
@@ -28,7 +28,7 @@ export default function LoginModal() {
   );
   const { setUser, isLoggedIn, setLoggedIn } = useContext(UserContext);
 
-  const handleSubmit = () => {
+  const handleSubmit = async () => {
     if (username === "") {
       setHelpMessage("Email is required.");
       return;
@@ -38,11 +38,11 @@ export default function LoginModal() {
       setHelpMessage("Password is required.");
       return;
     }
-    
-    const loginSuccessful = auth.login(username, password);
+
+    const loginSuccessful = await auth.login(username, password);
 
     if (loginSuccessful) {
-      const loggedInUser = auth.getCurrentUser();
+      const loggedInUser = await auth.getCurrentUser();
 
       setUser(loggedInUser);
       setLoggedIn(true);
@@ -50,6 +50,15 @@ export default function LoginModal() {
       onClose();
     } else setHelpMessage("Incorrect username or password");
   };
+
+  useEffect(() => {
+    let isMounted = true;
+
+    
+    return () => {
+      isMounted = false
+    }
+  });
 
   return (
     <>

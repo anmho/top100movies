@@ -18,3 +18,9 @@ export async function getMovieById(tmdbId) {
   const result = await fetch(movieUrl).then((response) => response.json());
   return result;
 }
+
+const movieService = {
+  searchMovies,
+  getMovieById,
+};
+export default movieService;

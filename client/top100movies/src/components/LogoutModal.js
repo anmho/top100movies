@@ -8,9 +8,14 @@ import {
   Button,
   ModalOverlay,
 } from "@chakra-ui/react";
+import auth from "../services/authService";
+import { useContext } from "react";
+import UserContext from "../contexts/userContext";
 
-export default function LogoutModal({ logOut }) {
+export default function LogoutModal() {
   const { isOpen, onOpen, onClose } = useDisclosure();
+  const { setLoggedIn } = useContext(UserContext);
+
   return (
     <>
       <Button onClick={onOpen}>Log Out</Button>
@@ -22,15 +27,16 @@ export default function LogoutModal({ logOut }) {
           <ModalFooter>
             <Button
               onClick={() => {
+                auth.logout();
+                setLoggedIn(false);
                 onClose();
-                logOut();
               }}
               mr={3}
               colorScheme="blue"
             >
               Log Out
             </Button>
-            <Button>Close</Button>
+            <Button onClick={onClose}>Close</Button>
           </ModalFooter>
         </ModalContent>
       </Modal>

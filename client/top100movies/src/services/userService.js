@@ -4,4 +4,10 @@ const apiEndpoint = config.apiUrl + "users";
 
 
 
-export function getUsers() {}
+export function getUsers() {
+
+}
+// Must be logged in
+export function updateUser(username) {
+
+}
