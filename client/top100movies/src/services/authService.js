@@ -9,6 +9,10 @@ const usersUrl = config.apiUrl + "/api/users";
 const TOKEN_KEY = "token";
 const USERNAME_KEY = "username";
 
+export function getToken() {
+  return localStorage.getItem(TOKEN_KEY);
+}
+
 export async function login(username, password) {
   const response = await fetch(tokensUrl, {
     method: "POST",
@@ -54,5 +58,6 @@ const auth = {
   login,
   getCurrentUser,
   logout,
+  getToken,
 };
 export default auth;

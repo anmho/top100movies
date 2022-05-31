@@ -1,4 +1,5 @@
 import config from "../config.json";
+import { getToken } from "./authService";
 
 const apiEndpoint = config.apiUrl + "/api/movies";
 
@@ -19,8 +20,24 @@ export async function getMovieById(tmdbId) {
   return result;
 }
 
+export async function getRecommendations() {
+  const recUrl = apiEndpoint + "/recommendations";
+
+  const recommendations = await fetch(recUrl, {
+    method: "GET",
+    headers: {
+      Authorization: "Bearer " + getToken(),
+    },
+  })
+    .then((res) => res.json())
+    .then((data) => data.recommendations);
+
+  return recommendations;
+}
+
 const movieService = {
   searchMovies,
   getMovieById,
+  getRecommendations,
 };
 export default movieService;

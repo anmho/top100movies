@@ -54,10 +54,9 @@ export default function LoginModal() {
   useEffect(() => {
     let isMounted = true;
 
-    
     return () => {
-      isMounted = false
-    }
+      isMounted = false;
+    };
   });
 
   return (
@@ -78,6 +77,7 @@ export default function LoginModal() {
                 variant="filled"
                 type="text"
                 onChange={(e) => setUsername(e.target.value)}
+                onKeyDown={(e) => (e.key === "Enter" ? handleSubmit() : null)}
               />
               <FormLabel htmlFor="password">Password</FormLabel>
               <Input
@@ -87,6 +87,7 @@ export default function LoginModal() {
                 onChange={(e) => {
                   setPassword(e.target.value);
                 }}
+                onKeyDown={(e) => (e.key === "Enter" ? handleSubmit() : null)}
               />
               <FormHelperText>{helpMessage}</FormHelperText>
             </FormControl>
