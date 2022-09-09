@@ -3,21 +3,11 @@
 Where full URLs are provided in responses they will be rendered as if service
 is running on 'http://testserver/'.
 
-### Current User related
-
-Each endpoint manipulates or displays information related to the User whose
-Token is provided with the request:
-
+### User
 * [Show info](user/get.md) : `GET /api/user/`
 * [Update info](user/put.md) : `PUT /api/user/`
 
-### Account related
 
-Endpoints for viewing and manipulating the Accounts that the Authenticated User
-has permissions to access.
+### Tokens
 
-* [Show Accessible Accounts](accounts/get.md) : `GET /api/accounts/`
-* [Create Account](accounts/post.md) : `POST /api/accounts/`
-* [Show An Account](accounts/pk/get.md) : `GET /api/accounts/:pk/`
-* [Update An Account](accounts/pk/put.md) : `PUT /api/accounts/:pk/`
-* [Delete An Account](accounts/pk/delete.md) : `DELETE /api/accounts/:pk/`
+### Movies
