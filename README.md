@@ -1,7 +1,7 @@
 # Setup
 ### If you wish to clone, fork, or try this project, you must import these files into these folders:
 
-`/api/recommender/`:
+```/api/recommender/```:
 [rec_matrix](https://drive.google.com/file/d/1huQuE2Jokvj0Y6QYGHNlvYKwqRRiLkYf/view?usp=sharing)
 
 `/api/recommender/datasets`:
