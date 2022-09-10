@@ -3,4 +3,5 @@ __pycache__
 database.db
 rec_matrix
 # app/config.py
-app/env_setup.py
+env_setup.py
+env_setup.sh

@@ -25,10 +25,10 @@ def create_app():
     db.init_app(app)
     # register extensions
     migrate = Migrate(app, db)
-    create_database(app)
+    # create_database(app)
     return app
 
 
-def create_database(app):
-    if not path.exists(DB_NAME):
-        db.create_all(app=app)
+# def create_database(app):
+#     if not path.exists(DB_NAME):
+#         db.create_all(app=app)
