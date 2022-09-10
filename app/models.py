@@ -67,7 +67,7 @@ class User(db.Model, PaginatedAPIMixin):
     username = db.Column(db.String(20), unique=True)
     email = db.Column(db.String(100), unique=True)
     movies = db.relationship("Movie", secondary="user_movie", backref="users")
-    pw_hash = db.Column(db.String(64))
+    pw_hash = db.Column(db.String(255))
     token = db.Column(db.String(32), index=True, unique=True)
     token_expiration = db.Column(db.DateTime())
 
@@ -78,7 +78,7 @@ class User(db.Model, PaginatedAPIMixin):
     def check_password(self, password: str) -> bool:
         return check_password_hash(pwhash=self.pw_hash, password=password)
 
-    def get_token(self, expires_in=3600) -> str:
+    def get_token(self, expires_in: int=3600) -> str:
         now = datetime.utcnow()
         # check if token exists and is unexpired
         if self.token and self.token_expiration > now + timedelta(seconds=60):

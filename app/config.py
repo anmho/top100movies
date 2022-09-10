@@ -1,0 +1,12 @@
+
+import os
+
+DB_NAME = os.environ.get("DB_NAME")
+
+# CONFIG
+SECRET_KEY = os.environ.get("SECRET_KEY")
+SQLALCHEMY_DATABASE_URI = os.environ.get("SQLALCHEMY_DATABASE_URI")
+# SQLALCHEMY_TRACK_MODIFICATIONS = False
+
+# API KEYS
+TMDB_API_KEY = os.environ.get("TMDB_API_KEY")
