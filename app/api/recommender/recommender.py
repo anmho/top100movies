@@ -9,11 +9,11 @@ from pathlib import Path
 
 class Recommender:
     _REC_MATRIX = joblib.load(
-        Path(__file__).parent / "rec_matrix")
+        Path(__file__).parent / "rec_matrix.pkl")
     _LINKS = pd.read_csv(
         Path(__file__).parent / "datasets/links.csv")
     _MOVIES = pd.read_csv(
-        Path(__file__).parent /"datasets/movies.csv")
+        Path(__file__).parent / "datasets/movies.csv")
 
     @classmethod
     def get_tmdb_id(cls, movielens_id: int) -> int:

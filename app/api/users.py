@@ -39,7 +39,6 @@ def create_user():
 
     data = request.get_json() or {}
     # Check for username, email, and password
-    print(data)
     if "username" not in data or "email" not in data or "password" not in data:
         # error_code = 0
         # error_msg = ERROR_CODES[error_code]
