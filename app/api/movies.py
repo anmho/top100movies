@@ -20,7 +20,7 @@ def get_movies():
 
 
 @api.route("/movies/<int:movie_id>", methods=["GET"])
-def get_movie(movie_id):
+def get_movie(movie_id: int):
     url = f"https://api.themoviedb.org/3/movie/{movie_id}?api_key={TMDB_API_KEY}&language=en-US"
     response = requests.get(url).json()
     return response

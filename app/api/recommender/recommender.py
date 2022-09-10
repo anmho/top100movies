@@ -16,7 +16,7 @@ class Recommender:
         Path(__file__).parent /"datasets/movies.csv")
 
     @classmethod
-    def get_tmdb_id(cls, movielens_id) -> int:
+    def get_tmdb_id(cls, movielens_id: int) -> int:
         id_row = cls._LINKS.loc[cls._LINKS["movieId"] == movielens_id]
         if len(id_row) == 0:  # movie_id doesn't exist or not in dataset
             return None
@@ -25,7 +25,7 @@ class Recommender:
         return tmdb_id
 
     @classmethod
-    def get_movie_id(cls, tmdb_id) -> int:
+    def get_movie_id(cls, tmdb_id: int) -> int:
         id_row = cls._LINKS.loc[cls._LINKS["tmdbId"] == tmdb_id]
         if len(id_row) == 0:  # tmdb_id doesn't exist or not in dataset
             return None
@@ -35,7 +35,7 @@ class Recommender:
         return movie_id
 
     @classmethod
-    def get_similar_movies(cls, movie_id, user_rating) -> Series:
+    def get_similar_movies(cls, movie_id: int, user_rating: float) -> Series:
         # Movie not in rec matrix -> No corresponding recommendations
         if not movie_id in cls._REC_MATRIX:
             return Series([])
