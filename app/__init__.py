@@ -2,7 +2,6 @@ from flask_migrate import Migrate
 from flask import Flask
 from flask_sqlalchemy import SQLAlchemy
 from os import path
-from .config import DB_NAME
 from .api import api
 from .models import db
 

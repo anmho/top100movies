@@ -9,7 +9,7 @@ from pathlib import Path
 
 class Recommender:
     _REC_MATRIX = joblib.load(
-        Path(__file__).parent / "rec_matrix.pkl")
+        Path(__file__).parent / "rec_matrix")
     _LINKS = pd.read_csv(
         Path(__file__).parent / "datasets/links.csv")
     _MOVIES = pd.read_csv(
