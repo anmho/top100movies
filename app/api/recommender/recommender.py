@@ -17,6 +17,14 @@ class Recommender:
 
     @classmethod
     def get_tmdb_id(cls, movielens_id: int) -> int:
+        """This method converts a movie's MovieLens ID to the corresponding TMDB movie ID
+
+        Args:
+            movielens_id (int): _description_
+
+        Returns:
+            int: Corresponding TMDB movie ID corresponding to the MovieLens ID from the dataset
+        """
         id_row = cls._LINKS.loc[cls._LINKS["movieId"] == movielens_id]
         if len(id_row) == 0:  # movie_id doesn't exist or not in dataset
             return None
